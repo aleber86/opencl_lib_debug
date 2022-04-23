@@ -66,9 +66,7 @@ def reduccion(prog : cl.Program, queue : cl.CommandQueue,
   kernel(queue, (problem_shape,), None, matriz_gpu, matriz_out_gpu)
   queue.finish()
   cl.enqueue_copy(queue, matriz, matriz_gpu)
-  suma = 0
-  for index,j in enumerate(matriz):
-      suma += j
+  suma = np.sum(matriz)
   print(suma)
 
 
