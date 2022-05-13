@@ -1,21 +1,6 @@
 
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable    // enable Float64
 
-void __kernel reduccion(__global int *matrix, __global int *matrix_out){
-    int gid_0 = get_global_id(0);
-    int lsz_0 = get_local_size(0);
-    int sum;
-
-    if (gid_0%lsz_0 == 0){
-        sum = 0;
-        for(int k=0; k<lsz_0; k++){
-            sum += matrix[gid_0+k];
-    }
-
-    matrix_out[gid_0] = sum;
-    }
-}
-
 void __kernel id_test_dimension(__global int *matrix_gid, __global int *matrix_lid){
     int gid_0 = get_global_id(0);
     int gid_1 = get_global_id(1);
@@ -33,18 +18,40 @@ void __kernel id_test_dimension(__global int *matrix_gid, __global int *matrix_l
     int gup_1 = get_group_id(1);
     int gup_2 = get_group_id(2);
     
+    barrier(CLK_GLOBAL_MEM_FENCE);
     int index_0 = gup_0*lsz_0 + lid_0;
     int index_1 = gup_1*lsz_1 + lid_1;
     int index_2 = gup_2*lsz_2 + lid_2;
 
     matrix_gid[gid_0] = gid_0 + gid_1 + gid_2;
+    barrier(CLK_GLOBAL_MEM_FENCE);
     matrix_lid[index_0] = index_0 + index_1 + index_2;
 }
 
 
+void __kernel reduccion(__global int *matrix, __global int *matrix_out){
+    int gid_0 = get_global_id(0);
+    int lsz_0 = get_local_size(0);
+    int sum;
+
+    if (gid_0%lsz_0 == 0){
+        sum = 0;
+        for(int k=0; k<lsz_0; k++){
+            sum += matrix[gid_0+k];
+    }
+
+    matrix_out[gid_0] = sum;
+    }
+}
+
+
+
 void __kernel math_functions(__global double *matrix_in, __global double *matrix_out){
+
     int gid_0 = get_global_id(0);
     int gsz_0 = get_global_size(0);
+    double ptr[1];
+    int ptr2[1];
 
     matrix_out[0*gsz_0 + gid_0] += matrix_in[gsz_0*0 + gid_0];
     matrix_out[1*gsz_0 + gid_0] -= matrix_in[gsz_0*1 + gid_0];
@@ -79,8 +86,19 @@ void __kernel math_functions(__global double *matrix_in, __global double *matrix
     matrix_out[30*gsz_0 + gid_0] = fmax((double)(2.0),matrix_in[gsz_0*30 + gid_0]);
     matrix_out[31*gsz_0 + gid_0] = fmin((double)(2.0),matrix_in[gsz_0*31 + gid_0]);
     matrix_out[32*gsz_0 + gid_0] = fmod(matrix_in[gsz_0*32 + gid_0], (double)(2.1));
-//    matrix_out[33*gsz_0 + gid_0] = fract(matrix_in[gsz_0*33 + gid_0], remanent);
+    matrix_out[33*gsz_0 + gid_0] = fract(matrix_in[gsz_0*33 + gid_0], ptr);
     matrix_out[34*gsz_0 + gid_0] = hypot(matrix_in[gsz_0*34 + gid_0], (double)(2.1));
     matrix_out[35*gsz_0 + gid_0] = ldexp(matrix_in[gsz_0*35 + gid_0], (int)(4));
+    matrix_out[36*gsz_0 + gid_0] = (double)(ilogb(matrix_in[gsz_0*36 + gid_0]));
+    matrix_out[37*gsz_0 + gid_0] = lgamma(matrix_in[gsz_0*37 + gid_0]);
+    matrix_out[38*gsz_0 + gid_0] = lgamma_r(matrix_in[gsz_0*38 + gid_0], ptr2);
+    matrix_out[39*gsz_0 + gid_0] = log(matrix_in[gsz_0*39 + gid_0]);
+    matrix_out[40*gsz_0 + gid_0] = log2(matrix_in[gsz_0*40 + gid_0]);
+    matrix_out[41*gsz_0 + gid_0] = log10(matrix_in[gsz_0*41 + gid_0]);
+    matrix_out[42*gsz_0 + gid_0] = log1p(matrix_in[gsz_0*42 + gid_0]);
+    matrix_out[43*gsz_0 + gid_0] = nextafter((double)(2.0), matrix_in[gsz_0*43 + gid_0]);
+    matrix_out[44*gsz_0 + gid_0] = pow((double)(2.0),matrix_in[gsz_0*44 + gid_0]);
+    matrix_out[45*gsz_0 + gid_0] = pown(matrix_in[gsz_0*45 + gid_0], 2);
+    matrix_out[46*gsz_0 + gid_0] = powr(matrix_in[gsz_0*46 + gid_0], 2);
 
 }
