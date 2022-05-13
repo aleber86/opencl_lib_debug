@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+
 import numpy as np
 import pyopencl as cl
 from mod_cmd.command_line_arguments import menu_cmd
