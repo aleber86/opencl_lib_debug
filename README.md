@@ -14,7 +14,7 @@ Use this library for debug or testing. <br />
 --OpenCL ICD--- <br />
 
 
-###Excecute with `opencl_full_debug.py` for default options <br />
+### Excecute with `opencl_full_debug.py` for default options <br />
 
 `-v True` or `--verbose True` print on screen absolute error (min, max). <br />
 `-l True` or `--log True` print all results to files with suffix: **32bit**, **64bit**, **int**. <br />
@@ -22,7 +22,7 @@ Use this library for debug or testing. <br />
 `-dP (float)` or `--double-precision (float)` absolute error threshold for double precision test. Default 1.e-15. <br />
 `-w (int)` or `--warn-limit` warning limit for results expressed by order of magnitude. Default 1. Set 0 for no threshold. <br />
 
-###Tests: <br />
+### Tests: <br />
 **Global id test by using get_global_id() and global_id = get_group_id()*get_local_size() + get_local_id()** <br />
 **Reduction in global memory and last sum on host** <br />
 **Test of math functions** <br />
