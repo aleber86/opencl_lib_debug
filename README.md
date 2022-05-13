@@ -9,9 +9,9 @@ Use this library for debug or testing. <br />
 
 *Dependencies* <br />
 
---Numpy-- <br />
---Pyopencl-- <br />
---OpenCL ICD--- <br />
+-- Numpy -- <br />
+-- Pyopencl -- <br />
+-- OpenCL ICD -- <br />
 
 
 ### Excecute with `opencl_full_debug.py` for default options <br />
@@ -23,9 +23,9 @@ Use this library for debug or testing. <br />
 `-w (int)` or `--warn-limit` warning limit for results expressed by order of magnitude. Default 1. Set 0 for no threshold. <br />
 
 ### Tests: <br />
-**Global id test by using get_global_id() and global_id = get_group_id()*get_local_size() + get_local_id()** <br />
-**Reduction in global memory and last sum on host** <br />
-**Test of math functions** <br />
+*Global id test by using get_global_id() and global_id = get_group_id() get_local_size() + get_local_id()* <br />
+*Reduction in global memory and last sum on host* <br />
+*Test of math functions* <br />
 ~~Reduction in local memory and last sum on device~~ (Not implemented) <br />
 
 
