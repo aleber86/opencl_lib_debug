@@ -1,6 +1,8 @@
 
 
 void __kernel id_test_dimension(__global int *matrix_gid, __global int *matrix_lid){
+    /*Test: Global index output*/
+
     int gid_0 = get_global_id(0);
     int gid_1 = get_global_id(1);
     int gid_2 = get_global_id(2);
@@ -27,6 +29,8 @@ void __kernel id_test_dimension(__global int *matrix_gid, __global int *matrix_l
 }
 
 void __kernel reduccion(__global int *matrix, __global int *matrix_out){
+    /*Test: Reduction using private and global mem*/
+
     int gid_0 = get_global_id(0);
     int lsz_0 = get_local_size(0);
     int sum;
@@ -43,6 +47,8 @@ void __kernel reduccion(__global int *matrix, __global int *matrix_out){
 
 
 void __kernel math_functions(__global float *matrix_in, __global float *matrix_out){
+    /*Test: Math function test*/
+
     int gid_0 = get_global_id(0);
     int gsz_0 = get_global_size(0);
     float ptr[1];
@@ -96,3 +102,41 @@ void __kernel math_functions(__global float *matrix_in, __global float *matrix_o
     matrix_out[45*gsz_0 + gid_0] = pown(matrix_in[gsz_0*45 + gid_0], 2);
     matrix_out[46*gsz_0 + gid_0] = powr(matrix_in[gsz_0*46 + gid_0], 2);
 }
+
+void __kernel matrix_product(__global float *A, __global float *B, 
+        __global float *C){
+    /*Test: Matrix product using local mem and private mem. Not intended for 
+     * real use. This algorithm is very unstable and prone to error propagation.
+     */
+    
+    int gid_0 = get_global_id(0);
+    int gid_1 = get_global_id(1);
+    int grp_0 = get_group_id(0);
+    int grp_1 = get_group_id(1);
+    int gsz_0 = get_global_size(0);
+    int gsz_1 = get_global_size(1);
+    int lsz_0 = get_local_size(0);
+    int lsz_1 = get_local_size(1);
+    int lid_0 = get_local_id(0);
+    int lid_1 = get_local_id(1);
+    int ngp_0 = get_num_groups(0);
+    int ngp_1 = get_num_groups(1);
+
+    __local float l_a[8][8];
+    __local float l_b[8][8];
+    __private float p_c = 0.0f;
+
+
+    for(int group_1 = 0; group_1 < ngp_1; group_1++ ){
+        l_a[lid_0][lid_1] = A[(lid_0 + grp_0*lsz_0)*gsz_1 + (lid_1 + group_1*lsz_1)];
+        l_b[lid_0][lid_1] = B[(lid_0 + group_1*lsz_0)*gsz_1 + (lid_1 + grp_1*lsz_1)];
+        mem_fence(CLK_LOCAL_MEM_FENCE);
+        for(int i=0; i<lsz_0; i++){
+            p_c = fma(l_a[lid_0][i], l_b[i][lid_1], p_c);
+        }
+        barrier(CLK_LOCAL_MEM_FENCE);
+        }
+    C[gid_0*gsz_1 + gid_1] = p_c;
+}
+
+

@@ -9,6 +9,8 @@ class Test_Class:
     function_test_result_matrix = []
     reduction_result = 0
     matrix_id_value = []
+    matrix_product = []
+    test = []
     test_dictionary = {"np_test_matrix" : ["Sum", "Substract",
                                            "Product", "Division",
                                            "ACOS", "ACOSH", "ACOS/PI",
@@ -21,18 +23,15 @@ class Test_Class:
                                            "EXP(X) - 1", "ABS", "FDIM",
                                            "FMA", "MAX", "MIN", "MOD",
                                            "FRAC", "HYPOT", "LDEXP",
-                                           "ILOGB", "LGAMMA", "LGAMMAR",
+                                           "ILOGB", "LGAMMA (math lib)", "LGAMMAR (math lib)",
                                            "LOG", "LOG2", "LOG10", "NEXTAFTER",
                                            "POW", "POWN", "POWR"],
                        "reduction": ["Reduction on Global Mem"],
-                       "id_test" : ["Id test"]}
+                       "id_test" : ["Id test"], "matrix_product": ["Matrix Product nxn"]}
 
-    HEADERS = 80*"*"
-    TITLE = f"TEST NAME{20*' '} STATUS\t GOOD\t\t WARN\t FAILED (>Abs. err.)"
-    log_to_file = False
+    HEADERS = 100*"*"
+    TITLE = f"TEST NAME{20*' '} STATUS\t GOOD\t\t WARN\t FAILED \tAbs. err. (min, max)"
 
-    def __init__(self, log):
-        self.log_to_file = log
 
     def fdim(self, arg1, arg2, _wp = np.float64):
         matrix_out = np.zeros(arg1.shape, dtype = _wp)
@@ -95,7 +94,7 @@ class Test_Class:
         matrix_argument_out[30] = np.fmax(_wp(2.0),matrix_argument_in[30])
         matrix_argument_out[31] = np.fmin(_wp(2.0),matrix_argument_in[31])
         matrix_argument_out[32] = np.fmod(matrix_argument_in[32], _wp(2.1))
-        matrix_argument_out[33] = matrix_argument_out[33] - np.floor(matrix_argument_out[33])
+        matrix_argument_out[33] = matrix_argument_in[33] - np.floor(matrix_argument_in[33])
         matrix_argument_out[34] = np.hypot(matrix_argument_in[34], _wp(2.1))
         matrix_argument_out[35] = np.ldexp(matrix_argument_in[35], np.int32(4))
         matrix_argument_out[36] = np.floor(np.log(matrix_argument_in[36]))
@@ -129,8 +128,8 @@ class Test_Class:
 
         print(f"Id test using absolute error limit {limit}\n")
         test = np.abs(self.matrix_id_value-matrix_to_compare)
-        test = [test]
-        self._operation(test, self.test_dictionary["id_test"], limit, warn_limit, verbose, warn_test)
+        self.test = [test]
+        self._operation(self.test, self.test_dictionary["id_test"], limit, warn_limit, verbose, warn_test)
         print(self.HEADERS,"\n")
 
     def function_test_result(self, matrix_to_compare, limit = 1.e-15, warn_limit = 1.e-14,
@@ -138,11 +137,9 @@ class Test_Class:
         """Test and compare results between math functions in math/numpy lib and OpenCL 1.0"""
 
         print(f"OpenCL Functions using absolute error limit {limit}\n")
-        test = np.abs(self.function_test_result_matrix - matrix_to_compare)
-        self._operation(test, self.test_dictionary["np_test_matrix"], limit, warn_limit, verbose, warn_test)
+        self.test = np.abs(self.function_test_result_matrix - matrix_to_compare)
+        self._operation(self.test, self.test_dictionary["np_test_matrix"], limit, warn_limit, verbose, warn_test)
         print(self.HEADERS,"\n")
-        self._print_to_file("function_test_result", matrix_to_compare,
-                            self.function_test_result_matrix, test)
 
 
     def reduction_(self, matrix_in, matrix_to_compare, verbose = True, warn_test = [],
@@ -151,12 +148,23 @@ class Test_Class:
 
         print(f"Reduction using absolute error limit {limit}\n")
         self.reduction_result = np.sum(matrix_in)
-        test = [[np.abs(self.reduction_result - matrix_to_compare)]]
-        self._operation(test, self.test_dictionary["reduction"], limit, warn_limit, verbose, warn_test)
+        self.test = [[np.abs(self.reduction_result - matrix_to_compare)]]
+        self._operation(self.test, self.test_dictionary["reduction"], limit, warn_limit, verbose, warn_test)
         print(self.HEADERS,"\n")
 
-        self._print_to_file("reduction", matrix_to_compare,
-                            self.reduction_result, test)
+
+    def matrix_product_definition(self, matrix_1, matrix_2):
+        self.matrix_product = np.matmul(matrix_1, matrix_2)
+
+    def matrix_product_test(self, matrix_to_compare, limit = 1.e-15, warn_limit = 1.e-14,
+                             verbose = True, warn_test = [21,22]):
+        """Test and compare results between matrix product in math/numpy lib and OpenCL 1.0"""
+
+        print(f"OpenCL Functions using absolute error limit {limit}\n")
+        self.test = np.abs(self.matrix_product - matrix_to_compare)
+        self._operation(self.test, self.test_dictionary["matrix_product"], limit, warn_limit, verbose, warn_test)
+        print(self.HEADERS,"\n")
+
 
     def _color_output(self, value_to_test, condition_result_in, precision = 1.e-15,
                       warn_limit = 1.e-14, expected = False):
@@ -172,7 +180,7 @@ class Test_Class:
             test = None
         condition_result_in.append(test)
 
-    def _output_value(self,name_op, condition_result, print_value, tabs):
+    def _output_value(self,name_op, condition_result, print_value, tabs, array_2_d = False):
         """Print on screen results as good/warn/failed. 'print_value' is the
         absolute error of test values"""
 
@@ -180,7 +188,12 @@ class Test_Class:
         True_number = condition_result.count(True)
         False_number = condition_result.count(False)
         None_number = condition_result.count(None)
-        length = len(condition_result)
+
+        if array_2_d:
+            length = len(condition_result)*len(condition_result[0])
+        else:
+            length = len(condition_result)
+
         HEAD = f"{name_op}{tabs}"
         TRUE = f"{True_number}/{length}"
         WARN = f"{None_number}/{length}"
@@ -228,38 +241,4 @@ class Test_Class:
         print(self.TITLE)
         print(self.HEADERS)
 
-    def _print_to_file(self, name_of_test, matrix_to_compare, test_matrix, test_result):
-        if self.log_to_file:
-            try:
-                value = matrix_to_compare[0][0]
-            except IndexError:
-                value = matrix_to_compare
-            if isinstance(value, (np.float32)):
-                tp = "32bit"
-            elif isinstance(value, (np.float64)):
-                tp = "64bit"
-            elif isinstance(value, (np.int64)):
-                tp = "int64"
-            elif isinstance(value, (np.int32)):
-                tp = "int32"
-
-            with open(f"{name_of_test}_{tp}.dat", "w") as file:
-                try:
-                    file.write("OPENCL RESULT: \n")
-                    np.savetxt(file, matrix_to_compare)
-                    file.write("\n \n")
-                    file.write("NUMPY/MATH RESULT: \n")
-                    np.savetxt(file, test_matrix)
-                    file.write("\n \n")
-                    file.write("ABSOLUTE ERROR: \n")
-                    np.savetxt(file, test_result)
-                except ValueError:
-                    file.write(str(matrix_to_compare))
-                    file.write("\n \n")
-                    file.write("NUMPY/MATH RESULT: \n")
-                    file.write(str(test_matrix))
-                    file.write("\n \n")
-                    file.write("ABSOLUTE ERROR: \n")
-                    file.write(str(test_result))
-                    file.write("\n \n")
 

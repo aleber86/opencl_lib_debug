@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
 
-
 import numpy as np
 import pyopencl as cl
 from mod_cmd.command_line_arguments import menu_cmd
+from mod_cmd.file_operation import File_Handler
 from mod_opencl.opencl_class_device import OpenCL_Object, Platform_Device_OpenCL
 from mod_test.test_object import Test_Class
 
 
 def id_test_dimension(Instance_OpenCL_Object : "OpenCL_Object", Test_obj,
-                      _wp : "type(..,16,32,64..)" = np.int32,
+                      File_obj, _wp : "type(..,16,32,64..)" = np.int32,
                       kernel_name = "kernel_full_debug",
                       Dev_prop = None, precision = 0 ):
 
+    File_obj.open_file("dimension_test", _wp)
     if Dev_prop is None:
         total_size_per_dim = 2**8
-        problem_shapie = (total_size_per_dim,)
+        problem_shape = (total_size_per_dim,)
         Total_size = problem_shape
     else:
         problem_shape = tuple((dimension for dimension in Dev_prop[3]))
@@ -33,7 +34,7 @@ def id_test_dimension(Instance_OpenCL_Object : "OpenCL_Object", Test_obj,
                                                   Instance_OpenCL_Object.matrix_in_lid_device)
     Instance_OpenCL_Object.queue.finish()
 
-    cl.enqueue_copy( Instance_OpenCL_Object.queue,
+    cl.enqueue_copy(Instance_OpenCL_Object.queue,
                      Instance_OpenCL_Object.matrix_in_gid,
                      Instance_OpenCL_Object.matrix_in_gid_device)
 
@@ -43,14 +44,20 @@ def id_test_dimension(Instance_OpenCL_Object : "OpenCL_Object", Test_obj,
     Test_obj.matrix_id(Dev_prop[3])
     Test_obj.id_test_dimension(Instance_OpenCL_Object.matrix_in_gid, precision)
     Test_obj.id_test_dimension(Instance_OpenCL_Object.matrix_in_lid, precision)
+
+    File_obj.print_to_file(Instance_OpenCL_Object.matrix_in_gid, Test_obj.matrix_id, Test_obj.test)
+    File_obj.print_to_file(Instance_OpenCL_Object.matrix_in_lid, Test_obj.matrix_id, Test_obj.test)
+    File_obj.close_file()
+
     Instance_OpenCL_Object.free_buffer()
     Instance_OpenCL_Object.reset_attrib()
 
-def reduccion(Instance_OpenCL_Object, Test_obj,
+def reduccion(Instance_OpenCL_Object, Test_obj, File_obj,
               _wp : "type(..,16,32,64..)" = np.int32,
               Dev_prop = None, kernel_name = "kernel_full_debug",
               precision = 1.e-6, w_limit = 1.e-5, verb = True):
 
+    File_obj.open_file("reduction", _wp)
     if Dev_prop is None:
         local_size = [16]
         element_quant = 2**12
@@ -77,20 +84,23 @@ def reduccion(Instance_OpenCL_Object, Test_obj,
                         Instance_OpenCL_Object.matrix_out_device)
         suma =np.sum(Instance_OpenCL_Object.matrix_out)
         Test_obj.reduction_(matrix_in, suma, verbose = verb, warn_test = [], limit = precision, warn_limit = w_limit)
+        File_obj.print_to_file(Instance_OpenCL_Object.matrix_out, Test_obj.reduction_result, Test_obj.test)
+
         #Reset buffer out
         matrix_out = np.zeros(problem_shape, dtype=_wp)
         Instance_OpenCL_Object.buffer_global(matrix_out, "matrix_out")
+        print(f"Tested with local size shape: {local_value_size}")
     #Removes every attribute of Instance_OpenCL_Object
     Instance_OpenCL_Object.free_buffer()
     Instance_OpenCL_Object.reset_attrib()
+    File_obj.close_file()
 
-
-def functions_test(Instance_OpenCL_Object, Test_obj,
+def functions_test(Instance_OpenCL_Object, Test_obj, File_obj,
                    _wp : "type(..16,32,64,...)" = np.float64,
                    Dev_prop = None, dim = 512, kernel_name = "kernel_full_debug",
                    precision = 1.e-6, w_limit = 1.e-5, verb = True):
 
-
+    File_obj.open_file("functions_test", _wp)
     if isinstance(_wp(0.0), (np.float64, np.float32)):
         matrix_in = np.array([[np.random.random() for _ in range(dim)] for _ in range(47)],dtype = _wp)
         matrix_in[5] = np.fabs(matrix_in[5]  ) + _wp(1.0)#arccosh >= 1
@@ -127,8 +137,50 @@ def functions_test(Instance_OpenCL_Object, Test_obj,
 
     Test_obj.function_test_result(Instance_OpenCL_Object.matrix_out, limit = precision,
                                   warn_limit = w_limit, verbose = verb, warn_test = [] )
+    File_obj.print_to_file(Instance_OpenCL_Object.matrix_out, Test_obj.function_test_result, Test_obj.test)
+    File_obj.close_file()
     Instance_OpenCL_Object.free_buffer()
     Instance_OpenCL_Object.reset_attrib()
+
+
+def matrix_product(Instance_OpenCL_Object, Test_obj, File_obj,
+                   _wp : "type(..16,32,64,...)" = np.float64,
+                   Dev_prop = None, dim = 128, kernel_name = "kernel_full_debug",
+                   precision = 1.e-6, w_limit = 1.e-5, verb = True):
+
+    File_obj.open_file("matrix_product", _wp)
+    if isinstance(_wp(0), (np.float32, np.float64)):
+        matrix_in = np.array([[np.random.random() for _ in range(dim)] for _ in range(dim)],dtype = _wp)
+        matrix_in_2 = np.array([[np.random.random() for _ in range(dim)] for _ in range(dim)],dtype = _wp)
+    elif isinstance(_wp(0), (np.int32, np.int64)):
+        matrix_in = np.array([[np.random.randint(-10,10) for _ in range(dim)] for _ in range(dim)],dtype = _wp)
+        matrix_in_2 = np.array([[np.random.randint(-10,10) for _ in range(dim)] for _ in range(dim)],dtype = _wp)
+
+    matrix_out = np.zeros_like(matrix_in, dtype=_wp)
+    Instance_OpenCL_Object.buffer_global(matrix_in, "matrix_in", False)
+    Instance_OpenCL_Object.buffer_global(matrix_in_2, "matrix_in_2", False)
+    Instance_OpenCL_Object.buffer_global(matrix_out, "matrix_out")
+    Instance_OpenCL_Object.program(kernel_name) #<- comiled at first test
+
+    Test_obj.matrix_product_definition(matrix_in, matrix_in_2)
+    for local_size_dim in [(2,2), (4,4), (8,8)]:
+        Instance_OpenCL_Object.kernel.matrix_product(Instance_OpenCL_Object.queue,
+                                                    (dim,dim), local_size_dim,
+                                                    Instance_OpenCL_Object.matrix_in_device,
+                                                    Instance_OpenCL_Object.matrix_in_2_device,
+                                                    Instance_OpenCL_Object.matrix_out_device)
+        Instance_OpenCL_Object.queue.finish()
+        cl.enqueue_copy(Instance_OpenCL_Object.queue,
+                        Instance_OpenCL_Object.matrix_out,
+                        Instance_OpenCL_Object.matrix_out_device)
+        Test_obj.matrix_product_test(Instance_OpenCL_Object.matrix_out, limit = precision,
+                                      warn_limit = w_limit, verbose = verb, warn_test = [] )
+        File_obj.print_to_file(Instance_OpenCL_Object.matrix_out, Test_obj.matrix_product, Test_obj.test)
+
+        print(f"Tested with local size shape: {local_size_dim}")
+    Instance_OpenCL_Object.free_buffer()
+    Instance_OpenCL_Object.reset_attrib()
+    File_obj.close_file()
 
 def main():
     values_input_value = menu_cmd()
@@ -142,9 +194,9 @@ def main():
     verbose = values_input_value.verbose
     file_print = values_input_value.log
     #**************************************************************************
-
+    File_Handler_Object = File_Handler(file_print)
     First_OpenCL_Object = OpenCL_Object() #Instance of OpenCL test object
-    Test_Object = Test_Class(file_print) #Instance of test object
+    Test_Object = Test_Class() #Instance of test object
 
     #Device_Propierties -> [[extensions], max_glob_mem, max_loc_mem, [w_it,w_it,w_it]]
     Device_Propierties = First_OpenCL_Object.return_attrib()
@@ -159,13 +211,21 @@ def main():
 
     for key, kernel_precision in kernel_script.items():
         #Test calls -> inside OpenCL calls & numpy tests
-        id_test_dimension(First_OpenCL_Object, Test_Object ,Dev_prop=Device_Propierties )
-        reduccion(First_OpenCL_Object, Test_Object,
+        id_test_dimension(First_OpenCL_Object, Test_Object,
+                          File_Handler_Object, Dev_prop = Device_Propierties )
+
+
+        reduccion(First_OpenCL_Object, Test_Object, File_Handler_Object,
                   Dev_prop=Device_Propierties, kernel_name = kernel_precision[0],
                   precision = kernel_precision[2], w_limit = kernel_precision[3], verb = verbose)
-        functions_test(First_OpenCL_Object, Test_Object,
+
+        functions_test(First_OpenCL_Object, Test_Object, File_Handler_Object,
                        _wp = kernel_precision[1], dim=2**12, kernel_name= kernel_precision[0],
                        precision = kernel_precision[2], w_limit = kernel_precision[3], verb = verbose)
+        matrix_product(First_OpenCL_Object, Test_Object, File_Handler_Object,
+                      Dev_prop=Device_Propierties, kernel_name = kernel_precision[0], dim = 128,
+                      precision = kernel_precision[2],_wp = kernel_precision[1],
+                       w_limit = kernel_precision[3], verb = verbose)
 
 if __name__ == "__main__":
     main()
