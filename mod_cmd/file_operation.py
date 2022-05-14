@@ -22,7 +22,7 @@ class File_Handler:
                 tp = "int64"
             elif isinstance(precision(0), (np_int32)):
                 tp = "int32"
-        self.file_name = open(f"{name_of_file}_{tp}.dat", "w")
+            self.file_name = open(f"{name_of_file}_{tp}.dat", "w")
 
     def close_file(self):
         if self.log_to_file:
