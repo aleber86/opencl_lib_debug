@@ -121,20 +121,27 @@ def functions_test(Instance_OpenCL_Object, Test_obj, File_obj,
         matrix_in[42] = np.fabs(matrix_in[42]  ) + _wp(1)#log1p > 0
         matrix_in[46] = np.fabs(matrix_in[46]  ) + _wp(1)#powr >= 0
     matrix_out = np.zeros(matrix_in.shape, dtype = _wp)
+    matrix_out_int = np.zeros((1,dim), dtype=np.int32)
     problem_shape = matrix_in.shape
     Test_obj.numpy_test(matrix_in)
     Instance_OpenCL_Object.buffer_global(matrix_in, "matrix_in", False)
     Instance_OpenCL_Object.buffer_global(matrix_out, "matrix_out")
+    Instance_OpenCL_Object.buffer_global(matrix_out_int, "matrix_out_int")
     Instance_OpenCL_Object.program(kernel_name) #<- comiled at first test
     Instance_OpenCL_Object.kernel.math_functions(Instance_OpenCL_Object.queue,
                                                             (dim,), None,
                                                             Instance_OpenCL_Object.matrix_in_device,
-                                                            Instance_OpenCL_Object.matrix_out_device)
+                                                            Instance_OpenCL_Object.matrix_out_device,
+                                                            Instance_OpenCL_Object.matrix_out_int_device)
     Instance_OpenCL_Object.queue.finish()
     cl.enqueue_copy(Instance_OpenCL_Object.queue,
                     Instance_OpenCL_Object.matrix_out,
                     Instance_OpenCL_Object.matrix_out_device)
 
+    cl.enqueue_copy(Instance_OpenCL_Object.queue,
+                    Instance_OpenCL_Object.matrix_out_int,
+                    Instance_OpenCL_Object.matrix_out_int_device)
+    Instance_OpenCL_Object.matrix_out[36] = Instance_OpenCL_Object.matrix_out_int[0]
     Test_obj.function_test_result(Instance_OpenCL_Object.matrix_out, limit = precision,
                                   warn_limit = w_limit, verbose = verb, warn_test = [] )
     File_obj.print_to_file(Instance_OpenCL_Object.matrix_out, Test_obj.function_test_result, Test_obj.test)

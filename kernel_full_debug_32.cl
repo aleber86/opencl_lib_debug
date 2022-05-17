@@ -46,7 +46,8 @@ void __kernel reduccion(__global int *matrix, __global int *matrix_out){
 }
 
 
-void __kernel math_functions(__global float *matrix_in, __global float *matrix_out){
+void __kernel math_functions(__global float *matrix_in, __global float *matrix_out,
+        __global int *matrix_out_int){
     /*Test: Math function test*/
 
     int gid_0 = get_global_id(0);
@@ -75,8 +76,8 @@ void __kernel math_functions(__global float *matrix_in, __global float *matrix_o
     matrix_out[18*gsz_0 + gid_0] = cos(matrix_in[gsz_0*18 + gid_0]);
     matrix_out[19*gsz_0 + gid_0] = cosh(matrix_in[gsz_0*19 + gid_0]);
     matrix_out[20*gsz_0 + gid_0] = cospi(matrix_in[gsz_0*20 + gid_0]);
-    matrix_out[21*gsz_0 + gid_0] = erfc(matrix_in[gsz_0*21 + gid_0]);
-    matrix_out[22*gsz_0 + gid_0] = erf(matrix_in[gsz_0*22 + gid_0]);
+    matrix_out[21*gsz_0 + gid_0] = erf(matrix_in[gsz_0*21 + gid_0]);
+    matrix_out[22*gsz_0 + gid_0] = erfc(matrix_in[gsz_0*22 + gid_0]);
     matrix_out[23*gsz_0 + gid_0] = exp(matrix_in[gsz_0*23 + gid_0]);
     matrix_out[24*gsz_0 + gid_0] = exp2(matrix_in[gsz_0*24 + gid_0]);
     matrix_out[25*gsz_0 + gid_0] = exp10(matrix_in[gsz_0*25 + gid_0]);
@@ -90,7 +91,7 @@ void __kernel math_functions(__global float *matrix_in, __global float *matrix_o
     matrix_out[33*gsz_0 + gid_0] = fract(matrix_in[gsz_0*33 + gid_0], ptr);
     matrix_out[34*gsz_0 + gid_0] = hypot(matrix_in[gsz_0*34 + gid_0], (float)(2.1f));
     matrix_out[35*gsz_0 + gid_0] = ldexp(matrix_in[gsz_0*35 + gid_0], (int)(4));
-    matrix_out[36*gsz_0 + gid_0] = (float)(ilogb(matrix_in[gsz_0*36 + gid_0]));
+//    matrix_out[36*gsz_0 + gid_0] = (float)(ilogb(matrix_in[gsz_0*36 + gid_0]));
     matrix_out[37*gsz_0 + gid_0] = lgamma(matrix_in[gsz_0*37 + gid_0]);
     matrix_out[38*gsz_0 + gid_0] = lgamma_r(matrix_in[gsz_0*38 + gid_0], ptr2);
     matrix_out[39*gsz_0 + gid_0] = log(matrix_in[gsz_0*39 + gid_0]);
@@ -101,6 +102,8 @@ void __kernel math_functions(__global float *matrix_in, __global float *matrix_o
     matrix_out[44*gsz_0 + gid_0] = pow((float)(2.0f),matrix_in[gsz_0*44 + gid_0]);
     matrix_out[45*gsz_0 + gid_0] = pown(matrix_in[gsz_0*45 + gid_0], 2);
     matrix_out[46*gsz_0 + gid_0] = powr(matrix_in[gsz_0*46 + gid_0], 2);
+
+    matrix_out_int[0*gsz_0 + gid_0] = ilogb(matrix_in[gsz_0*36 + gid_0]);
 }
 
 void __kernel matrix_product(__global float *A, __global float *B, 

@@ -19,7 +19,7 @@ class Test_Class:
                                            "ATAN2", "ATAN(X;Y)/PI","CBRT",
                                            "CEIL", "Copysign", "COS",
                                            "COSH", "COS(PI*X)", "ERF",
-                                           "ERFC", "EXP", "EXP2", "EXP10",
+                                           "ERFC", "EXP", "EXP2", "EXP10 Numpy power(10.0, n)",
                                            "EXP(X) - 1", "ABS", "FDIM",
                                            "FMA", "MAX", "MIN", "MOD",
                                            "FRAC", "HYPOT", "LDEXP",
@@ -97,7 +97,7 @@ class Test_Class:
         matrix_argument_out[33] = matrix_argument_in[33] - np.floor(matrix_argument_in[33])
         matrix_argument_out[34] = np.hypot(matrix_argument_in[34], _wp(2.1))
         matrix_argument_out[35] = np.ldexp(matrix_argument_in[35], np.int32(4))
-        matrix_argument_out[36] = np.floor(np.log(matrix_argument_in[36]))
+        matrix_argument_out[36] = np.floor(np.log2(matrix_argument_in[36]))
         matrix_argument_out[37] = self.lgamma(matrix_argument_in[37], _wp)
         matrix_argument_out[38] = self.lgamma(np.abs(matrix_argument_in[38]), _wp)
         matrix_argument_out[39] = np.log(matrix_argument_in[39])

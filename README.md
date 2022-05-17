@@ -13,7 +13,7 @@ __Pyopencl__ <br />
 __OpenCL ICD__ <br />
 
 
-### Excecute with `opencl_full_debug.py` for default options <br />
+### Excecute with `opencl_full_debug` for default options <br />
 
 `-v True` or `--verbose True` print on screen absolute error (min, max). <br />
 `-l True` or `--log True` print all results to files with suffix: **32bit**, **64bit**, **int64**. <br />
