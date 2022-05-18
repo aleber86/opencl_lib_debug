@@ -93,7 +93,7 @@ void __kernel math_functions(__global double *matrix_in, __global double *matrix
     matrix_out[33*gsz_0 + gid_0] = fract(matrix_in[gsz_0*33 + gid_0], ptr);
     matrix_out[34*gsz_0 + gid_0] = hypot(matrix_in[gsz_0*34 + gid_0], (2.1));
     matrix_out[35*gsz_0 + gid_0] = ldexp(matrix_in[gsz_0*35 + gid_0], (int)(4));
-//    matrix_out[36*gsz_0 + gid_0] = (ilogb(matrix_in[gsz_0*36 + gid_0]));
+    //matrix_out[36*gsz_0] -> replaced at output by matrix_out_int[0]
     matrix_out[37*gsz_0 + gid_0] = lgamma(matrix_in[gsz_0*37 + gid_0]);
     matrix_out[38*gsz_0 + gid_0] = lgamma_r(matrix_in[gsz_0*38 + gid_0], ptr2);
     matrix_out[39*gsz_0 + gid_0] = log(matrix_in[gsz_0*39 + gid_0]);
@@ -104,13 +104,31 @@ void __kernel math_functions(__global double *matrix_in, __global double *matrix
     matrix_out[44*gsz_0 + gid_0] = pow((2.0),matrix_in[gsz_0*44 + gid_0]);
     matrix_out[45*gsz_0 + gid_0] = pown(matrix_in[gsz_0*45 + gid_0], 2);
     matrix_out[46*gsz_0 + gid_0] = powr(matrix_in[gsz_0*46 + gid_0], 2);
-
+    matrix_out[47*gsz_0 + gid_0] = mad((2.0),(1.1),matrix_in[gsz_0*47 + gid_0]);
+    matrix_out[48*gsz_0 + gid_0] = modf(matrix_in[gsz_0*48 + gid_0], matrix_out + (gsz_0*49) + gid_0);
+    matrix_out[50*gsz_0 + gid_0] = remainder(2.1, matrix_in[gsz_0*50 + gid_0]);
+    matrix_out[51*gsz_0 + gid_0] = remquo(15.5, matrix_in[gsz_0*51 + gid_0], matrix_out_int+(1*gsz_0)+gid_0);
+    matrix_out[52*gsz_0 + gid_0] = rint(matrix_in[gsz_0*52+gid_0]);
+    matrix_out[53*gsz_0 + gid_0] = rootn(fabs(matrix_in[gsz_0*53+gid_0]), 6);
+    matrix_out[54*gsz_0 + gid_0] = round(matrix_in[gsz_0*54+gid_0]);
+    matrix_out[55*gsz_0 + gid_0] = rsqrt(matrix_in[gsz_0*55+gid_0]);
+    matrix_out[56*gsz_0 + gid_0] = sin(matrix_in[gsz_0*56+gid_0]);
+    matrix_out[57*gsz_0 + gid_0] = sincos(matrix_in[gsz_0*57+gid_0], matrix_out + (gsz_0*58) + gid_0);
+    matrix_out[59*gsz_0 + gid_0] = sinh(matrix_in[gsz_0*58+gid_0]);
+    matrix_out[60*gsz_0 + gid_0] = sinpi(matrix_in[gsz_0*59+gid_0]);
+    matrix_out[61*gsz_0 + gid_0] = sqrt(fabs(matrix_in[gsz_0*60+gid_0]));
+    matrix_out[62*gsz_0 + gid_0] = tan(matrix_in[gsz_0*61+gid_0]);
+    matrix_out[63*gsz_0 + gid_0] = tanh(matrix_in[gsz_0*62+gid_0]);
+    matrix_out[64*gsz_0 + gid_0] = tanpi(matrix_in[gsz_0*63+gid_0]);
+    matrix_out[65*gsz_0 + gid_0] = tgamma(matrix_in[gsz_0*64+gid_0]);
+    matrix_out[66*gsz_0 + gid_0] = trunc(matrix_in[gsz_0*65+gid_0]);
+    
     matrix_out_int[0*gsz_0 + gid_0] = ilogb(matrix_in[gsz_0*36 + gid_0]);
 }
 
 void __kernel matrix_product(__global double *A, __global double *B, 
         __global double *C){
-    /*Test: Matrix product using local mem and private mem. Not intended for 
+    /*Test: Square matrix product using local mem and private mem. Not intended for 
      * real use. This algorithm is very unstable and prone to error propagation.
      */
 

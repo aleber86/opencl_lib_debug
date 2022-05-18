@@ -25,7 +25,10 @@ class Test_Class:
                                            "FRAC", "HYPOT", "LDEXP",
                                            "ILOGB", "LGAMMA (math lib)", "LGAMMAR (math lib)",
                                            "LOG", "LOG2", "LOG10", "NEXTAFTER",
-                                           "POW", "POWN", "POWR"],
+                                           "POW", "POWN", "POWR", "MAD", "MODF (mantisa)", "MODF (int)",
+                                           "REMINDER", "REMQUO", "RINT", "ROOTN", "ROUND", "RSQRT",
+                                           "SIN", "SINCOS (SIN)", "SINCOS (COS)", "SINH", "SINPI",
+                                           "SQRT", "TAN", "TANH", "TANPI", "TGAMMA (math lib)", "TRUNC"],
                        "reduction": ["Reduction on Global Mem"],
                        "id_test" : ["Id test"], "matrix_product": ["Matrix Product nxn"]}
 
@@ -49,12 +52,25 @@ class Test_Class:
         return matrix_out
 
     def erfc(self, arg1, _wp = np.float64):
-       return _wp(1.0) - self.erf(arg1, _wp)
+        return _wp(1.0) - self.erf(arg1, _wp)
+
+    def gamma(self, arg1, _wp = np.float64):
+        matrix_out = np.zeros(arg1.shape, dtype = _wp)
+        for index,value in enumerate(arg1):
+            matrix_out[index] = np.math.gamma(value)
+        return matrix_out
 
     def lgamma(self, arg1, _wp = np.float64):
         matrix_out = np.zeros(arg1.shape, dtype = _wp)
         for index,value in enumerate(arg1):
             matrix_out[index] = np.math.lgamma(value)
+        return matrix_out
+
+    def remquo(self, arg1, arg2, _wp = np.float64):
+        matrix_out = np.zeros(arg2.shape, dtype=_wp)
+        for index, value in enumerate(arg2):
+            rem = np.remainder(arg1, value)
+            matrix_out[index] = rem
         return matrix_out
 
     def numpy_test(self, matrix_argument_in : "np.array", _wp : "type(precision)"= np.float64):
@@ -108,6 +124,25 @@ class Test_Class:
         matrix_argument_out[44] = np.power(_wp(2.0),matrix_argument_in[44])
         matrix_argument_out[45] = np.power(matrix_argument_in[45], np.int32(2))
         matrix_argument_out[46] = np.power(matrix_argument_in[46], np.int32(2))
+        matrix_argument_out[47] = _wp(2.0)*_wp(1.1) + matrix_argument_in[47]
+        matrix_argument_out[48], matrix_argument_out[49] = np.modf(matrix_argument_in[48])
+        matrix_argument_out[50] = np.remainder(_wp(2.1), matrix_argument_in[50])
+        matrix_argument_out[51] = self.remquo(_wp(15.5), matrix_argument_in[51], _wp)
+        matrix_argument_out[52] = np.rint(matrix_argument_in[52])
+        matrix_argument_out[53] = np.power(np.abs(matrix_argument_in[53]), 1/6)
+        matrix_argument_out[54] = np.round(matrix_argument_in[54])
+        matrix_argument_out[55] = _wp(1.0/np.sqrt(np.abs(matrix_argument_in[55])))
+        matrix_argument_out[56] = np.sin(matrix_argument_in[56])
+        matrix_argument_out[57] = np.sin(matrix_argument_in[57])
+        matrix_argument_out[58] = np.cos(matrix_argument_in[57])
+        matrix_argument_out[59] = np.sinh(matrix_argument_in[58])
+        matrix_argument_out[60] = np.sin(np.pi*matrix_argument_in[59])
+        matrix_argument_out[61] = np.sqrt(np.abs(matrix_argument_in[60]))
+        matrix_argument_out[62] = np.tan(matrix_argument_in[61])
+        matrix_argument_out[63] = np.tanh(matrix_argument_in[62])
+        matrix_argument_out[64] = np.tan(np.pi*matrix_argument_in[63])
+        matrix_argument_out[65] = self.gamma(matrix_argument_in[64])
+        matrix_argument_out[66] = np.trunc(matrix_argument_in[65])
 
         self.function_test_result_matrix = matrix_argument_out
 

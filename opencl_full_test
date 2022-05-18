@@ -102,7 +102,7 @@ def functions_test(Instance_OpenCL_Object, Test_obj, File_obj,
 
     File_obj.open_file("functions_test", _wp)
     if isinstance(_wp(0.0), (np.float64, np.float32)):
-        matrix_in = np.array([[np.random.random() for _ in range(dim)] for _ in range(47)],dtype = _wp)
+        matrix_in = np.array([[np.random.random() for _ in range(dim)] for _ in range(67)],dtype = _wp)
         matrix_in[5] = np.fabs(matrix_in[5]  ) + _wp(1.0)#arccosh >= 1
         matrix_in[33] = np.fabs(matrix_in[33]  ) + _wp(10.0)#arccosh >= 1
         matrix_in[37] = np.fabs(matrix_in[37]  ) + _wp(1.0)#lgamma > 0
@@ -111,8 +111,9 @@ def functions_test(Instance_OpenCL_Object, Test_obj, File_obj,
         matrix_in[41] = np.fabs(matrix_in[41]  ) + _wp(1.0)#log10 > 0
         matrix_in[42] = np.fabs(matrix_in[42]  ) + _wp(1.0)#log1p > 0
         matrix_in[46] = np.fabs(matrix_in[46]  ) + _wp(1.0)#powr >= 0
+        matrix_in[62] = np.fabs(matrix_in[62]  ) + _wp(1.0)#powr >= 0
     else:
-        matrix_in = np.array([[np.random.randint(0,1) for _ in range(dim)] for _ in range(47)],dtype = _wp)
+        matrix_in = np.array([[np.random.randint(0,1) for _ in range(dim)] for _ in range(67)],dtype = _wp)
         matrix_in[5] = _wp(1)
         matrix_in[37] = np.fabs(matrix_in[37]  ) + _wp(1)#lgamma > 0
         matrix_in[39] = np.fabs(matrix_in[39]  ) + _wp(1)#log > 0
@@ -120,8 +121,9 @@ def functions_test(Instance_OpenCL_Object, Test_obj, File_obj,
         matrix_in[41] = np.fabs(matrix_in[41]  ) + _wp(1)#log10 > 0
         matrix_in[42] = np.fabs(matrix_in[42]  ) + _wp(1)#log1p > 0
         matrix_in[46] = np.fabs(matrix_in[46]  ) + _wp(1)#powr >= 0
+        matrix_in[62] = np.fabs(matrix_in[62]  ) + _wp(1)#powr >= 0
     matrix_out = np.zeros(matrix_in.shape, dtype = _wp)
-    matrix_out_int = np.zeros((1,dim), dtype=np.int32)
+    matrix_out_int = np.zeros((3,dim), dtype=np.int32)
     problem_shape = matrix_in.shape
     Test_obj.numpy_test(matrix_in)
     Instance_OpenCL_Object.buffer_global(matrix_in, "matrix_in", False)
@@ -141,6 +143,7 @@ def functions_test(Instance_OpenCL_Object, Test_obj, File_obj,
     cl.enqueue_copy(Instance_OpenCL_Object.queue,
                     Instance_OpenCL_Object.matrix_out_int,
                     Instance_OpenCL_Object.matrix_out_int_device)
+
     Instance_OpenCL_Object.matrix_out[36] = Instance_OpenCL_Object.matrix_out_int[0]
     Test_obj.function_test_result(Instance_OpenCL_Object.matrix_out, limit = precision,
                                   warn_limit = w_limit, verbose = verb, warn_test = [] )
@@ -220,7 +223,6 @@ def main():
         #Test calls -> inside OpenCL calls & numpy tests
         id_test_dimension(First_OpenCL_Object, Test_Object,
                           File_Handler_Object, Dev_prop = Device_Propierties )
-
 
         reduccion(First_OpenCL_Object, Test_Object, File_Handler_Object,
                   Dev_prop=Device_Propierties, kernel_name = kernel_precision[0],

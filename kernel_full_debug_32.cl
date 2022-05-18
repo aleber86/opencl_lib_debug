@@ -57,8 +57,8 @@ void __kernel math_functions(__global float *matrix_in, __global float *matrix_o
 
     matrix_out[0*gsz_0 + gid_0] += matrix_in[gsz_0*0 + gid_0];
     matrix_out[1*gsz_0 + gid_0] -= matrix_in[gsz_0*1 + gid_0];
-    matrix_out[2*gsz_0 + gid_0] = matrix_in[gsz_0*2 + gid_0] * (float)(1.1f);
-    matrix_out[3*gsz_0 + gid_0] = matrix_in[gsz_0*3 + gid_0] / (float)(1.1f);
+    matrix_out[2*gsz_0 + gid_0] = matrix_in[gsz_0*2 + gid_0] * (1.1f);
+    matrix_out[3*gsz_0 + gid_0] = matrix_in[gsz_0*3 + gid_0] / (1.1f);
     matrix_out[4*gsz_0 + gid_0] = acos(matrix_in[gsz_0*4 + gid_0]);
     matrix_out[5*gsz_0 + gid_0] = acosh(matrix_in[gsz_0*5 + gid_0]);
     matrix_out[6*gsz_0 + gid_0] = acospi(matrix_in[gsz_0*6 + gid_0]);
@@ -66,13 +66,13 @@ void __kernel math_functions(__global float *matrix_in, __global float *matrix_o
     matrix_out[8*gsz_0 + gid_0] = asinh(matrix_in[gsz_0*8 + gid_0]);
     matrix_out[9*gsz_0 + gid_0] = asinpi(matrix_in[gsz_0*9 + gid_0]);
     matrix_out[10*gsz_0 + gid_0] = atan(matrix_in[gsz_0*10 + gid_0]);
-    matrix_out[11*gsz_0 + gid_0] = atan2((float)(2.0f), matrix_in[gsz_0*11 + gid_0]);
+    matrix_out[11*gsz_0 + gid_0] = atan2((2.0f), matrix_in[gsz_0*11 + gid_0]);
     matrix_out[12*gsz_0 + gid_0] = atanh(matrix_in[gsz_0*12 + gid_0]);
     matrix_out[13*gsz_0 + gid_0] = atanpi(matrix_in[gsz_0*13 + gid_0]);
-    matrix_out[14*gsz_0 + gid_0] = atan2pi((float)(2.0f), matrix_in[gsz_0*14 + gid_0]);
+    matrix_out[14*gsz_0 + gid_0] = atan2pi((2.0f), matrix_in[gsz_0*14 + gid_0]);
     matrix_out[15*gsz_0 + gid_0] = cbrt(matrix_in[gsz_0*15 + gid_0]);
     matrix_out[16*gsz_0 + gid_0] = ceil(matrix_in[gsz_0*16 + gid_0]);
-    matrix_out[17*gsz_0 + gid_0] = copysign(matrix_in[gsz_0*17 + gid_0], (float)(-1.0f));
+    matrix_out[17*gsz_0 + gid_0] = copysign(matrix_in[gsz_0*17 + gid_0], (-1.0f));
     matrix_out[18*gsz_0 + gid_0] = cos(matrix_in[gsz_0*18 + gid_0]);
     matrix_out[19*gsz_0 + gid_0] = cosh(matrix_in[gsz_0*19 + gid_0]);
     matrix_out[20*gsz_0 + gid_0] = cospi(matrix_in[gsz_0*20 + gid_0]);
@@ -83,13 +83,13 @@ void __kernel math_functions(__global float *matrix_in, __global float *matrix_o
     matrix_out[25*gsz_0 + gid_0] = exp10(matrix_in[gsz_0*25 + gid_0]);
     matrix_out[26*gsz_0 + gid_0] = expm1(matrix_in[gsz_0*26 + gid_0]);
     matrix_out[27*gsz_0 + gid_0] = fabs(matrix_in[gsz_0*27 + gid_0]);
-    matrix_out[28*gsz_0 + gid_0] = fdim(matrix_in[gsz_0*28 + gid_0], (float)(2.0f));
-    matrix_out[29*gsz_0 + gid_0] = fma((float)(2.0f),(float)(1.1f),matrix_in[gsz_0*29 + gid_0]);
-    matrix_out[30*gsz_0 + gid_0] = fmax((float)(2.0f),matrix_in[gsz_0*30 + gid_0]);
-    matrix_out[31*gsz_0 + gid_0] = fmin((float)(2.0f),matrix_in[gsz_0*31 + gid_0]);
-    matrix_out[32*gsz_0 + gid_0] = fmod(matrix_in[gsz_0*32 + gid_0], (float)(2.1f));
+    matrix_out[28*gsz_0 + gid_0] = fdim(matrix_in[gsz_0*28 + gid_0], (2.0f));
+    matrix_out[29*gsz_0 + gid_0] = fma((2.0f),(1.1f),matrix_in[gsz_0*29 + gid_0]);
+    matrix_out[30*gsz_0 + gid_0] = fmax((2.0f),matrix_in[gsz_0*30 + gid_0]);
+    matrix_out[31*gsz_0 + gid_0] = fmin((2.0f),matrix_in[gsz_0*31 + gid_0]);
+    matrix_out[32*gsz_0 + gid_0] = fmod(matrix_in[gsz_0*32 + gid_0], (2.1f));
     matrix_out[33*gsz_0 + gid_0] = fract(matrix_in[gsz_0*33 + gid_0], ptr);
-    matrix_out[34*gsz_0 + gid_0] = hypot(matrix_in[gsz_0*34 + gid_0], (float)(2.1f));
+    matrix_out[34*gsz_0 + gid_0] = hypot(matrix_in[gsz_0*34 + gid_0], (2.1f));
     matrix_out[35*gsz_0 + gid_0] = ldexp(matrix_in[gsz_0*35 + gid_0], (int)(4));
 //    matrix_out[36*gsz_0 + gid_0] = (float)(ilogb(matrix_in[gsz_0*36 + gid_0]));
     matrix_out[37*gsz_0 + gid_0] = lgamma(matrix_in[gsz_0*37 + gid_0]);
@@ -98,17 +98,35 @@ void __kernel math_functions(__global float *matrix_in, __global float *matrix_o
     matrix_out[40*gsz_0 + gid_0] = log2(matrix_in[gsz_0*40 + gid_0]);
     matrix_out[41*gsz_0 + gid_0] = log10(matrix_in[gsz_0*41 + gid_0]);
     matrix_out[42*gsz_0 + gid_0] = log1p(matrix_in[gsz_0*42 + gid_0]);
-    matrix_out[43*gsz_0 + gid_0] = nextafter((float)(2.0f), matrix_in[gsz_0*43 + gid_0]);
-    matrix_out[44*gsz_0 + gid_0] = pow((float)(2.0f),matrix_in[gsz_0*44 + gid_0]);
+    matrix_out[43*gsz_0 + gid_0] = nextafter((2.0f), matrix_in[gsz_0*43 + gid_0]);
+    matrix_out[44*gsz_0 + gid_0] = pow((2.0f),matrix_in[gsz_0*44 + gid_0]);
     matrix_out[45*gsz_0 + gid_0] = pown(matrix_in[gsz_0*45 + gid_0], 2);
     matrix_out[46*gsz_0 + gid_0] = powr(matrix_in[gsz_0*46 + gid_0], 2);
+    matrix_out[47*gsz_0 + gid_0] = mad((2.0f),(1.1f),matrix_in[gsz_0*47 + gid_0]);
+    matrix_out[48*gsz_0 + gid_0] = modf(matrix_in[gsz_0*48 + gid_0], matrix_out + (gsz_0*49) + gid_0);
+    matrix_out[50*gsz_0 + gid_0] = remainder(2.1f, matrix_in[gsz_0*50 + gid_0]);
+    matrix_out[51*gsz_0 + gid_0] = remquo(15.5f, matrix_in[gsz_0*51 + gid_0], matrix_out_int+(1*gsz_0)+gid_0);
+    matrix_out[52*gsz_0 + gid_0] = rint(matrix_in[gsz_0*52+gid_0]);
+    matrix_out[53*gsz_0 + gid_0] = rootn(fabs(matrix_in[gsz_0*53+gid_0]), 6);
+    matrix_out[54*gsz_0 + gid_0] = round(matrix_in[gsz_0*54+gid_0]);
+    matrix_out[55*gsz_0 + gid_0] = rsqrt(fabs(matrix_in[gsz_0*55+gid_0]));
+    matrix_out[56*gsz_0 + gid_0] = sin(matrix_in[gsz_0*56+gid_0]);
+    matrix_out[57*gsz_0 + gid_0] = sincos(matrix_in[gsz_0*57+gid_0], matrix_out + (gsz_0*58) + gid_0);
+    matrix_out[59*gsz_0 + gid_0] = sinh(matrix_in[gsz_0*58+gid_0]);
+    matrix_out[60*gsz_0 + gid_0] = sinpi(matrix_in[gsz_0*59+gid_0]);
+    matrix_out[61*gsz_0 + gid_0] = sqrt(fabs(matrix_in[gsz_0*60+gid_0]));
+    matrix_out[62*gsz_0 + gid_0] = tan(matrix_in[gsz_0*61+gid_0]);
+    matrix_out[63*gsz_0 + gid_0] = tanh(matrix_in[gsz_0*62+gid_0]);
+    matrix_out[64*gsz_0 + gid_0] = tanpi(matrix_in[gsz_0*63+gid_0]);
+    matrix_out[65*gsz_0 + gid_0] = tgamma(matrix_in[gsz_0*64+gid_0]);
+    matrix_out[66*gsz_0 + gid_0] = trunc(matrix_in[gsz_0*65+gid_0]);
 
     matrix_out_int[0*gsz_0 + gid_0] = ilogb(matrix_in[gsz_0*36 + gid_0]);
 }
 
 void __kernel matrix_product(__global float *A, __global float *B, 
         __global float *C){
-    /*Test: Matrix product using local mem and private mem. Not intended for 
+    /*Test: Square matrix product of using local mem and private mem. Not intended for 
      * real use. This algorithm is very unstable and prone to error propagation.
      */
     
