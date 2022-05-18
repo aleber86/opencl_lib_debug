@@ -24,9 +24,9 @@ __OpenCL ICD__ <br />
 ### Tests: <br />
 *Global id test by using get_global_id() and global_id = get_group_id() get_local_size() + get_local_id()* <br />
 *Reduction in global memory and last sum on host* <br />
+*Reduction in local memory and last sum on device* <br />
 *Test of math functions* <br />
 *Matrix product nxn* <br />
-~~Reduction in local memory and last sum on device~~ (Not implemented) <br />
 
 
 

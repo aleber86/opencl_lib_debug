@@ -48,6 +48,60 @@ void __kernel reduccion(__global int *matrix, __global int *matrix_out){
 
 
 
+void __kernel reduccion_local(__global int *matrix_in,
+                         __global int *matrix_sal,
+                         __global int *suma_total,
+                         __global int *number_sum,
+                         __local int *acumm,
+                         int cantidad,
+                         int g_div){
+
+    /*Test: Reduction using local mem*/
+    int gid_0, lsz_0, gsz_0, gup_0, lid_0;
+    int gnum_0;
+    gsz_0 = get_global_size(0);
+    gid_0 = get_global_id(0);
+    lid_0 = get_local_id(0);
+    lsz_0 = get_local_size(0);
+    gup_0 = get_group_id(0);
+    gnum_0 = get_num_groups(0);
+    int stride, address;
+    int counter, counter2;
+
+    counter = 2;
+    stride = lsz_0/counter;
+    address = 1;
+    if(number_sum[0]==0){
+    acumm[lid_0] = matrix_in[gup_0*lsz_0 + lid_0];
+    }
+    else{
+    acumm[lid_0] = matrix_sal[gup_0*lsz_0 + lid_0];
+    }
+    barrier(CLK_LOCAL_MEM_FENCE);
+    while(stride >= 1){
+        if(lid_0 < stride){
+            acumm[counter*lid_0] += acumm[counter*lid_0 + address];
+            acumm[counter*lid_0 + address] = 0;
+            barrier(CLK_LOCAL_MEM_FENCE);
+        }
+        counter = counter *2;
+        stride = lsz_0/(counter);
+        address = address*2;
+    }
+    if(lid_0 == 0){
+    matrix_sal[lid_0+gup_0] = acumm[lid_0];
+    }
+    if(gid_0 == 0 && cantidad == 1){
+        suma_total[0] = matrix_sal[0];
+    }
+    if(gid_0 == 0){
+        number_sum[0] = number_sum[0] + 1;
+    }
+
+
+
+}
+
 void __kernel math_functions(__global double *matrix_in, __global double *matrix_out, 
         __global int *matrix_out_int){
     /*Test: Math function test*/

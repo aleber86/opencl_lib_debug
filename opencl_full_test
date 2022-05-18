@@ -67,11 +67,12 @@ def reduccion(Instance_OpenCL_Object, Test_obj, File_obj,
     problem_shape = element_quant
     #Test.
     matrix_in = np.array([np.random.randint(0,2) for i in range(element_quant)], dtype=_wp)
-    matrix_out = np.zeros(problem_shape, dtype=_wp)
+    matrix_out = np.zeros((problem_shape,), dtype=_wp)
     Instance_OpenCL_Object.buffer_global(matrix_in, "matrix_in", False)
     Instance_OpenCL_Object.buffer_global(matrix_out, "matrix_out")
     Instance_OpenCL_Object.program(kernel_name) #<- comiled at first test
 
+    #Reduction on global
     for local_value in local_size:
         local_value_size = (int(local_value), )
         Instance_OpenCL_Object.kernel.reduccion(Instance_OpenCL_Object.queue,
@@ -89,6 +90,47 @@ def reduccion(Instance_OpenCL_Object, Test_obj, File_obj,
         #Reset buffer out
         matrix_out = np.zeros(problem_shape, dtype=_wp)
         Instance_OpenCL_Object.buffer_global(matrix_out, "matrix_out")
+        print(f"Tested with local size shape: {local_value_size}")
+    
+    #Reduction on local
+    for local_value in local_size:
+        local_value_size = (local_value,)
+        res_red = np.array(0,dtype=_wp )
+        num_exit = np.array(0,dtype=_wp )
+        Instance_OpenCL_Object.buffer_global(matrix_in, "matrix_in")
+        Instance_OpenCL_Object.buffer_global(matrix_out, "matrix_out")
+        Instance_OpenCL_Object.buffer_global(res_red, "res_red")
+        Instance_OpenCL_Object.buffer_global(num_exit, "num_exit")
+        for_times = int(problem_shape/local_value)
+        count = 1
+        local_sum = int(_wp(0).nbytes*local_value)
+        Instance_OpenCL_Object.buffer_local(local_sum, "local_sum")
+        while(for_times>1):
+            count+=1
+            for_times = int(for_times/local_value)
+        g_div = np.int32(0)
+        quant = np.int32(count)
+        for iter_index in range(count):
+            if iter_index != count -1:
+                quant = np.int32(0)
+            else:
+                quant = np.int32(1)
+            Instance_OpenCL_Object.kernel.reduccion_local(Instance_OpenCL_Object.queue, (problem_shape,), 
+                                                          local_value_size,
+                                                          Instance_OpenCL_Object.matrix_in_device, 
+                                                          Instance_OpenCL_Object.matrix_out_device,
+                                                          Instance_OpenCL_Object.res_red_device,
+                                                          Instance_OpenCL_Object.num_exit_device,
+                                                          Instance_OpenCL_Object.local_sum_device,
+                                                          quant,
+                                                          g_div
+                                                          )
+            Instance_OpenCL_Object.queue.finish()
+        cl.enqueue_copy(Instance_OpenCL_Object.queue, Instance_OpenCL_Object.res_red, 
+                        Instance_OpenCL_Object.res_red_device)
+        
+        Test_obj.reduction_(matrix_in, Instance_OpenCL_Object.res_red, 
+                            verbose = verb, warn_test = [], limit = precision, warn_limit = w_limit)
         print(f"Tested with local size shape: {local_value_size}")
     #Removes every attribute of Instance_OpenCL_Object
     Instance_OpenCL_Object.free_buffer()
@@ -112,6 +154,7 @@ def functions_test(Instance_OpenCL_Object, Test_obj, File_obj,
         matrix_in[42] = np.fabs(matrix_in[42]  ) + _wp(1.0)#log1p > 0
         matrix_in[46] = np.fabs(matrix_in[46]  ) + _wp(1.0)#powr >= 0
         matrix_in[62] = np.fabs(matrix_in[62]  ) + _wp(1.0)#powr >= 0
+        matrix_in[65] = np.fabs(matrix_in[65]  ) + _wp(10.0)#powr >= 0
     else:
         matrix_in = np.array([[np.random.randint(0,1) for _ in range(dim)] for _ in range(67)],dtype = _wp)
         matrix_in[5] = _wp(1)
@@ -223,11 +266,9 @@ def main():
         #Test calls -> inside OpenCL calls & numpy tests
         id_test_dimension(First_OpenCL_Object, Test_Object,
                           File_Handler_Object, Dev_prop = Device_Propierties )
-
         reduccion(First_OpenCL_Object, Test_Object, File_Handler_Object,
                   Dev_prop=Device_Propierties, kernel_name = kernel_precision[0],
                   precision = kernel_precision[2], w_limit = kernel_precision[3], verb = verbose)
-
         functions_test(First_OpenCL_Object, Test_Object, File_Handler_Object,
                        _wp = kernel_precision[1], dim=2**12, kernel_name= kernel_precision[0],
                        precision = kernel_precision[2], w_limit = kernel_precision[3], verb = verbose)
@@ -235,6 +276,5 @@ def main():
                       Dev_prop=Device_Propierties, kernel_name = kernel_precision[0], dim = 128,
                       precision = kernel_precision[2],_wp = kernel_precision[1],
                        w_limit = kernel_precision[3], verb = verbose)
-
 if __name__ == "__main__":
     main()

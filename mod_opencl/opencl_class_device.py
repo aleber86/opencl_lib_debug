@@ -89,8 +89,8 @@ class OpenCL_Object(Platform_Device_OpenCL):
         self.__assign_attrib(true_value_name, assign_name, buffer_matrix_device, "_device")
 
 
-    def buffer_local(size : int, byte_size : int, buffer_name: str):
-      local_buffer = cl.LocalMemory(size*byte_size)
+    def buffer_local(self, size : int, buffer_name: str):
+      local_buffer = cl.LocalMemory(size)
       true_value_name = self.__new_parameter(buffer_name)
       self.__assign_attrib(true_value_name, buffer_name, local_buffer, "_device")
 
@@ -131,7 +131,9 @@ class OpenCL_Object(Platform_Device_OpenCL):
 
     def free_buffer(self):
         for name in self.__dict__.keys():
-            if (name.endswith("_device") and not name.startswith("device")):
+            if (name.endswith("_device") and
+                    not name.startswith("local") and
+                     not name.startswith("device")):
                 exec(f"self.{name}.release()")
 
     def return_attrib(self):
